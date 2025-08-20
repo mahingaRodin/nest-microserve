@@ -30,8 +30,10 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     ).toJSON() as unknown as TDocument;
   }
 
-  async findOne(filterQuery: FilterQuery<TDocument>): Promise<TDocument> {
-    const document = await this.model.findOne(filterQuery, {}, { lean: true });
+  async findOne(
+    filterQuery: FilterQuery<TDocument>,
+  ) {
+    const document = await this.model.findOne(filterQuery, {}, { lean: false });
 
     if (!document) {
       this.logger.warn('Document not found with filterQuery', filterQuery);
@@ -46,7 +48,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     update: UpdateQuery<TDocument>,
   ) {
     const document = await this.model.findOneAndUpdate(filterQuery, update, {
-      lean: true,
+      lean: false,
       new: true,
     });
 
@@ -63,14 +65,14 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     document: Partial<TDocument>,
   ) {
     return this.model.findOneAndUpdate(filterQuery, document, {
-      lean: true,
+      lean: false,
       upsert: true,
       new: true,
     });
   }
 
   async find(filterQuery: FilterQuery<TDocument>) {
-    return this.model.find(filterQuery, {}, { lean: true });
+    return this.model.find(filterQuery, {}, { lean: false });
   }
 
   async startTransaction() {
