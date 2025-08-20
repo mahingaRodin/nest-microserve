@@ -7,7 +7,7 @@ import {
   SaveOptions,
   Connection,
 } from 'mongoose';
-import { AbstractDocument } from './abstract.schema';
+import { AbstractDocument } from '../abstract.schema';
 
 export abstract class AbstractRepository<TDocument extends AbstractDocument> {
   protected abstract readonly logger: Logger;
@@ -30,9 +30,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     ).toJSON() as unknown as TDocument;
   }
 
-  async findOne(
-    filterQuery: FilterQuery<TDocument>,
-  ) {
+  async findOne(filterQuery: FilterQuery<TDocument>) {
     const document = await this.model.findOne(filterQuery, {}, { lean: false });
 
     if (!document) {
