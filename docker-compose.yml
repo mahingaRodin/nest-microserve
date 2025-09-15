@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   orders:
     build:
@@ -9,14 +11,13 @@ services:
       - ./apps/orders/.env
     depends_on:
       - mongodb-primary
-      - mongodb-secondary
-      - mongodb-arbiter
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     ports:
       - '3000:3000'
-
+    networks:
+      - app-network
   mongodb-primary:
     image: docker.io/bitnami/mongodb:5.0
     environment:
@@ -24,10 +25,13 @@ services:
       - MONGODB_REPLICA_SET_MODE=primary
       - MONGODB_ROOT_PASSWORD=password123
       - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_REPLICA_SET_NAME=replicaset
     volumes:
       - 'mongodb_master_data:/bitnami/mongodb'
     ports:
       - '27017:27017'
+    networks:
+      - app-network
 
   mongodb-secondary:
     image: docker.io/bitnami/mongodb:5.0
@@ -39,6 +43,9 @@ services:
       - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
       - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
       - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_REPLICA_SET_NAME=replicaset
+    networks:
+      - app-network
 
   mongodb-arbiter:
     image: docker.io/bitnami/mongodb:5.0
@@ -50,7 +57,14 @@ services:
       - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
       - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
       - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_REPLICA_SET_NAME=replicaset
+    networks:
+      - app-network
 
 volumes:
   mongodb_master_data:
     driver: local
+
+networks:
+  app-network:
+    driver: bridge
